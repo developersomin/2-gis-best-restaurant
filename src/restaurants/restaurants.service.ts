@@ -1,4 +1,4 @@
-import { Injectable, OnModuleInit } from '@nestjs/common';
+import { BadRequestException, Injectable, OnModuleInit } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Restaurants } from './entities/restaurants.entity';
 import { Repository } from 'typeorm';
@@ -37,7 +37,32 @@ export class RestaurantsService implements OnModuleInit {
 				lon: Number(row.REFINE_WGS84_LOGT[0]),
 				lat: Number(row.REFINE_WGS84_LAT[0]),
 			};
-			this.restaurantsRepository.save(dsta);
+			await this.restaurantsRepository.save(dsta);
 		}
+	}
+
+	findOne(storeName: string, lotNoAddr: string) {
+		return this.restaurantsRepository.findOne({
+			where: {
+				storeName,
+				lotNoAddr,
+			},
+		});
+	}
+
+	async updateRes(storeName: string, lotNoAddr: string, scoreAvg: number) {
+		const findRes = await this.findOne(storeName, lotNoAddr);
+		if (!findRes) {
+			throw new BadRequestException('음식점이 존재하지 않습니다.');
+		}
+		return this.restaurantsRepository.update(
+			{
+				storeName,
+				lotNoAddr,
+			},
+			{
+				scoreAvg,
+			},
+		);
 	}
 }

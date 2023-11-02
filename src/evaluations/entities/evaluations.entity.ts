@@ -5,8 +5,8 @@ import { Restaurants } from '../../restaurants/entities/restaurants.entity';
 
 @Entity()
 export class Evaluations extends BaseEntity {
-	@Column()
-	score: string;
+	@Column({ default: 0 })
+	score: number;
 
 	@Column()
 	content: string;

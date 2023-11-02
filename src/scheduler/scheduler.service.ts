@@ -6,6 +6,6 @@ export class SchedulerService {
 
 	@Cron('0 0 0 * * 1') //매주월요일 00:00
 	async handleCron() {
-		await this.restaurantsService.onModuleInit();
+		//await this.restaurantsService.onModuleInit();
 	}
 }
