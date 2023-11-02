@@ -1,32 +1,26 @@
-import {InjectRepository} from "@nestjs/typeorm";
-import {Area} from "./entities/area.entity";
-import {Repository} from "typeorm";
-import { Injectable, OnModuleDestroy, OnModuleInit } from "@nestjs/common";
-import {readFile} from "../commons/fs/fs.read";
+import { InjectRepository } from '@nestjs/typeorm';
+import { Area } from './entities/area.entity';
+import { Repository } from 'typeorm';
+import { Injectable, OnModuleInit } from '@nestjs/common';
+import { readFile } from '../commons/fs/fs.read';
 
 @Injectable()
-export class AreaService //implements OnModuleInit,OnModuleDestroy
-{
-
-    constructor(
-      @InjectRepository(Area)
-      private readonly areaRepository: Repository<Area>) {
-    }
-
-   /* async onModuleDestroy() {
-        await this.areaRepository.clear();
-    }
-
-    async onModuleInit() {
-        const data = readFile();
-        for (const item of data) {
-            console.log(item);
-            await this.areaRepository.save(item);
-        }
-    }*/
-
-
-    async createArea() {
-
-    }
+export class AreaService implements OnModuleInit {
+	constructor(
+		@InjectRepository(Area)
+		private readonly areaRepository: Repository<Area>,
+	) {}
+	createArea(area: Area) {
+		this.areaRepository.save(area);
+	}
+	async onModuleInit() {
+		const rows: Area[] = readFile();
+		console.log(rows);
+		for (const row of rows) {
+			const existingRow = await this.areaRepository.findOne({ where: { dosi: row.dosi, sgg: row.sgg } });
+			if (!existingRow) {
+				await this.areaRepository.save(row);
+			}
+		}
+	}
 }

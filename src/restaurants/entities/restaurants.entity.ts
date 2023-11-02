@@ -22,19 +22,11 @@ export class Restaurants extends OmitType(BaseEntity,['id']as const){
     @Column({nullable: true })
     gradFacltDivName: string;
     @Column({nullable: true })
-    maleEmployeeCnt: string;
-    @Column({nullable: true })
     yy: string;
     @Column({nullable: true })
     isMulti: string;
     @Column({nullable: true })
-    gradDivName: string;
-    @Column({nullable: true })
     totalScale:string;
-    @Column({nullable: true})
-    femaleEmployeeCnt: string;
-    @Column({nullable: true })
-    businessAreaName: string;
     @Column({nullable: true })
     cleanKindName: string;
     @Column({nullable: true })
