@@ -1,60 +1,58 @@
-import {Column, Entity, OneToMany} from "typeorm";
+import { Column, Entity, OneToMany, PrimaryColumn } from "typeorm";
 import {BaseEntity} from "../../commons/entitis/base.entity";
 import {Evaluations} from "../../evaluations/entities/evaluations.entity";
+import { OmitType } from "@nestjs/mapped-types";
 
 @Entity()
-export class Restaurants extends BaseEntity{
-
-    @Column({name: 'SIGUN_NM',nullable: true })
+export class Restaurants extends OmitType(BaseEntity,['id']as const){
+    @Column({nullable: true })
     cityName: string;
-    @Column({name: 'SIGUN_CD',nullable: true })
+    @Column({nullable: true })
     cityCode: string;
-    @Column({name: 'BIZPLC_NM',nullable: true })
+    @PrimaryColumn()
     storeName: string;
-    @Column({name: 'LICENSG_DE',nullable: true })
+    @Column({nullable: true })
     licenseDate: string;
-    @Column({name: 'BSN_STATE_NM',nullable: true })
+    @Column({nullable: true })
     openState: string;
-    @Column({name: 'CLSBIZ_DE',nullable: true })
+    @Column({nullable: true })
     shutDownDate: string;
-    @Column({name: 'LOCPLC_AR',nullable: true })
+    @Column({nullable: true })
     locationScale: string;
-    @Column({name: 'GRAD_FACLT_DIV_NM',nullable: true })
+    @Column({nullable: true })
     gradFacltDivName: string;
-    @Column({name: 'MALE_ENFLPSN_CNT',nullable: true })
+    @Column({nullable: true })
     maleEmployeeCnt: string;
-    @Column({name: 'YY',nullable: true })
+    @Column({nullable: true })
     yy: string;
-    @Column({name: 'MULTI_USE_BIZESTBL_YN',nullable: true })
+    @Column({nullable: true })
     isMulti: string;
-    @Column({name: 'GRAD_DIV_NM',nullable: true })
+    @Column({nullable: true })
     gradDivName: string;
-    @Column({name: 'TOT_FACLT_SCALE',nullable: true })
+    @Column({nullable: true })
     totalScale:string;
-    @Column({name: 'FEMALE_ENFLPSN_CNT', nullable: true})
+    @Column({nullable: true})
     femaleEmployeeCnt: string;
-    @Column({name: 'BSNSITE_CIRCUMFR_DIV_NM',nullable: true })
+    @Column({nullable: true })
     businessAreaName: string;
-    @Column({name: 'SANITTN_INDUTYPE_NM',nullable: true })
+    @Column({nullable: true })
     cleanKindName: string;
-    @Column({name: 'SANITTN_BIZCOND_NM',nullable: true })
+    @Column({nullable: true })
     cleanBizName: string;
-    @Column({name: 'TOT_EMPLY_CNT', nullable: true})
+    @Column({nullable: true})
     totalEmployeeCnt: string;
-    @Column({name: 'REFINE_LOTNO_ADDR', nullable: true})
+    @PrimaryColumn()
     lotNoAddr: string;
-    @Column({name: 'REFINE_ROADNM_ADDR', nullable: true})
+    @Column({nullable: true})
     roadAddr: string;
-    @Column({name: 'REFINE_ZIP_CD',nullable: true })
+    @Column({nullable: true })
     zipCode: string;
-
     @Column({type: "decimal",precision: 10, scale: 7})
     lon: number;
     @Column({type: "decimal",precision: 10, scale: 8})
     lat: number;
-
-
-
+    @Column({ default: 0 })
+    scoreAvg: number;
     @OneToMany(()=>Evaluations, (evaluation)=> evaluation.restaurant)
     evaluations: Evaluations[]
 }
