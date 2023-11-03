@@ -1,5 +1,3 @@
-import { PickType } from '@nestjs/mapped-types';
-import { Evaluations } from '../entities/evaluations.entity';
 import { IsNotEmpty, IsNumber, IsString, Max, Min } from 'class-validator';
 
 export class ScoreDto {
