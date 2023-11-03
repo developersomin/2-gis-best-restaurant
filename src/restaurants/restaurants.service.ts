@@ -41,7 +41,7 @@ export class RestaurantsService implements OnModuleInit {
 		}
 	}
 
-	findOne(storeName: string, lotNoAddr: string) {
+	findOne(storeName: string, lotNoAddr: string): Promise<Restaurants> {
 		return this.restaurantsRepository.findOne({
 			where: {
 				storeName,
@@ -50,12 +50,12 @@ export class RestaurantsService implements OnModuleInit {
 		});
 	}
 
-	async updateRes(storeName: string, lotNoAddr: string, scoreAvg: number) {
+	async updateRes(storeName: string, lotNoAddr: string, scoreAvg: number): Promise<Restaurants> {
 		const findRes = await this.findOne(storeName, lotNoAddr);
 		if (!findRes) {
 			throw new BadRequestException('음식점이 존재하지 않습니다.');
 		}
-		return this.restaurantsRepository.update(
+		const isUpdated = await this.restaurantsRepository.update(
 			{
 				storeName,
 				lotNoAddr,
@@ -64,5 +64,10 @@ export class RestaurantsService implements OnModuleInit {
 				scoreAvg,
 			},
 		);
+		if (isUpdated.affected === 1) {
+			return findRes;
+		} else {
+			throw new BadRequestException('음식점 업데이트에 실패 하셨습니다.');
+		}
 	}
 }
