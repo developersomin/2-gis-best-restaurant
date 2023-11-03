@@ -10,9 +10,6 @@ export class AreaService implements OnModuleInit {
 		@InjectRepository(Area)
 		private readonly areaRepository: Repository<Area>,
 	) {}
-	createArea(area: Area) {
-		this.areaRepository.save(area);
-	}
 	async onModuleInit() {
 		const rows: Area[] = readFile();
 		console.log(rows);
