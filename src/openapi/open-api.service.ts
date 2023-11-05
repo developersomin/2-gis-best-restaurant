@@ -37,8 +37,8 @@ export class OpenApiService {
 	}*/
 
 	async getAllData() {
-		const apiBaseURL = 'https://openapi.gg.go.kr/SafetyRestrntInfo';
-		const apiKey = '385b88d6977b45f09e737206e77cfd6e';
+		const apiBaseURL = 'https://openapi.gg.go.kr/' + process.env.OPEN_API_TYPE;
+		const apiKey = process.env.OPEN_API_KEY;
 		const pageSize = 1000;
 		let allData = [];
 
