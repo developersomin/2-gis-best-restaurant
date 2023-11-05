@@ -1,6 +1,6 @@
 import { Column, Entity, ManyToOne } from 'typeorm';
 import { BaseEntity } from '../../commons/entitis/base.entity';
-import { Users } from '../../users/entities/usesr.entity';
+import { Users } from '../../users/entities/users.entity';
 import { Restaurants } from '../../restaurants/entities/restaurants.entity';
 
 @Entity()

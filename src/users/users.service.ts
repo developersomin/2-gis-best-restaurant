@@ -1,14 +1,19 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable, UnauthorizedException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Users } from './entities/usesr.entity';
+import { Users } from './entities/users.entity';
 import { FindOptionsWhere, Repository } from 'typeorm';
 import { CreateUserDto } from './dto/create-user.dto';
 import * as bcrypt from 'bcryptjs';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { IGiveToken } from '../auth/interface/auth-service.interface';
+import { AuthService } from '../auth/auth.service';
 
 @Injectable()
 export class UsersService {
-	constructor(@InjectRepository(Users) private readonly usersRepository: Repository<Users>) {}
+	constructor(
+		@InjectRepository(Users) private readonly usersRepository: Repository<Users>,
+		private readonly authService: AuthService,
+	) {}
 
 	async findOne(options: FindOptionsWhere<Users>): Promise<Users> {
 		return await this.usersRepository.findOne({ where: options });
@@ -19,7 +24,7 @@ export class UsersService {
 		if (findUser) {
 			throw new BadRequestException('이미 가입한 아이디가 있습니다.');
 		}
-		const hashedPassword = await bcrypt.hash(password, 10);
+		const hashedPassword = await bcrypt.hash(password, Number(process.env.HASH_SALT));
 		const newUser = this.usersRepository.create({
 			nickname,
 			password: hashedPassword,
@@ -29,9 +34,9 @@ export class UsersService {
 		return newUser;
 	}
 
-	async updateUser(id: string, updateUserDto: UpdateUserDto): Promise<Users> {
+	async updateUser(userId: string, updateUserDto: UpdateUserDto): Promise<Users> {
 		const { isRecommend, lon, lat } = updateUserDto;
-		const findUser = await this.findOne({ id });
+		const findUser = await this.findOne({ id: userId });
 		if (!findUser) {
 			throw new BadRequestException('존재하지 않는 계정입니다.');
 		}
@@ -41,5 +46,18 @@ export class UsersService {
 		} else {
 			throw new BadRequestException('업데이트에 실패 했습니다.');
 		}
+	}
+
+	async login(user: Pick<Users, 'nickname' | 'password'>): Promise<IGiveToken> {
+		const findUser = await this.findOne({ nickname: user.nickname });
+		if (!findUser) {
+			throw new BadRequestException('');
+		}
+		const passOk = await bcrypt.compare(user.password, findUser.password);
+		if (!passOk) {
+			throw new UnauthorizedException('비밀번호가 틀렸습니다');
+		}
+
+		return this.authService.giveToken(findUser);
 	}
 }

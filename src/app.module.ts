@@ -7,6 +7,7 @@ import { UsersModule } from './users/users.module';
 import { RestaurantsModule } from './restaurants/restaurants.module';
 import { EvaluationsModule } from './evaluations/evaluations.module';
 import { AreaModule } from './area/area.module';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
 	imports: [
@@ -26,6 +27,7 @@ import { AreaModule } from './area/area.module';
 		RestaurantsModule,
 		EvaluationsModule,
 		AreaModule,
+		AuthModule,
 	],
 	controllers: [AppController],
 	providers: [AppService],

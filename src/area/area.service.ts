@@ -1,5 +1,5 @@
 import { InjectRepository } from '@nestjs/typeorm';
-import { Area } from './entities/area.entity';
+import { Area } from './entities/areas.entity';
 import { Repository } from 'typeorm';
 import { Injectable, OnModuleInit } from '@nestjs/common';
 import { readFile } from '../commons/fs/fs.read';
