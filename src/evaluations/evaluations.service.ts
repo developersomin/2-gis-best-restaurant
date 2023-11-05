@@ -38,15 +38,15 @@ export class EvaluationsService {
 	}
 
 	//유저가 평점을 남기면 실행되는 메소드
-	async keepScore(scoreDto: ScoreDto): Promise<Evaluations> {
-		const { userId, storeName, lotNoAddr, score, content } = scoreDto;
+	async keepScore(scoreDto: ScoreDto, userId): Promise<Evaluations> {
+		const { storeName, lotNoAddr, score, content } = scoreDto;
 		const findUser = await this.usersService.findOne({ id: userId });
 		if (!findUser) {
 			throw new BadRequestException('존재하지 않는 계정입니다.');
 		}
 
 		const scoreArr = await this.findResScore({ storeName, lotNoAddr });
-		const scoreAvg = await this.calculateScoreAvg(scoreArr, score);
+		const scoreAvg = this.calculateScoreAvg(scoreArr, score);
 		await this.restaurantsService.updateRes(storeName, lotNoAddr, scoreAvg);
 		const result = await this.evaluationsRepository.save({
 			score,

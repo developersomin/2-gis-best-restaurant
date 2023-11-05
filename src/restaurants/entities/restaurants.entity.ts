@@ -43,7 +43,7 @@ export class Restaurants extends OmitType(BaseEntity, ['id'] as const) {
 	lon: number;
 	@Column({ type: 'decimal', precision: 10, scale: 8 })
 	lat: number;
-	@Column({ type: 'decimal', precision: 2, scale: 1 })
+	@Column({ type: 'decimal', precision: 2, scale: 1, default: 0 })
 	scoreAvg: number;
 	@OneToMany(() => Evaluations, (evaluation) => evaluation.restaurant)
 	evaluations: Evaluations[];

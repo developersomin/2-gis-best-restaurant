@@ -9,9 +9,6 @@ export class ScoreDto {
 	@IsString()
 	content: string;
 
-	@IsString()
-	userId: string;
-
 	@IsString({ message: '가게명을 입력하세요' })
 	@IsNotEmpty()
 	storeName: string;
