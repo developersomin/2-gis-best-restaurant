@@ -13,55 +13,58 @@ export class RestaurantsService implements OnModuleInit {
 	) {}
 
 	async onModuleInit() {
-		const rows = await this.openApiService.multiDataFromOpenAPI();
+		const rows = await this.openApiService.getAllData();
 		for (const row of rows) {
-			console.log(row);
-			const dsta = {
-				cityName: row.SIGUN_NM[0],
-				cityCode: row.SIGUN_CD[0],
-				storeName: row.BIZPLC_NM[0],
-				licenseDate: row.LICENSG_DE[0],
-				openState: row.BSN_STATE_NM[0],
-				shutDownDate: row.CLSBIZ_DE[0],
-				locationScale: row.LOCPLC_AR[0],
-				gradFacltDivName: row.GRAD_FACLT_DIV_NM[0],
-				yy: row.YY[0],
-				isMulti: row.MULTI_USE_BIZESTBL_YN[0],
-				totalScale: row.TOT_FACLT_SCALE[0],
-				cleanKindName: row.SANITTN_INDUTYPE_NM[0],
-				cleanBizName: row.SANITTN_BIZCOND_NM[0],
-				totalEmployeeCnt: row.TOT_EMPLY_CNT[0],
-				lotNoAddr: row.REFINE_LOTNO_ADDR[0],
-				roadAddr: row.REFINE_ROADNM_ADDR[0],
-				zipCode: row.REFINE_ZIP_CD[0],
-				lon: Number(row.REFINE_WGS84_LOGT[0]),
-				lat: Number(row.REFINE_WGS84_LAT[0]),
-			};
-			await this.restaurantsRepository.save(dsta);
+			if (row.REFINE_WGS84_LOGT !== null || row.REFINE_WGS84_LAT !== null) {
+				const data = {
+					resNo: row.SAFETY_RESTRNT_NO,
+					resName: row.BIZPLC_NM,
+					detailAddr: row.DETAIL_ADDR,
+					storeTypeName: row.INDUTYPE_NM,
+					foodTypeName: row.INDUTYPE_DETAIL_NM,
+					telNo: row.TELNO,
+					slctnYnDiv: row.SLCTN_YN_DIV,
+					roadAddr: row.REFINE_ROADNM_ADDR,
+					lotNoAddr: row.REFINE_LOTNO_ADDR,
+					zipNo: row.REFINE_ZIPNO,
+					lot: row.REFINE_WGS84_LOGT,
+					lat: row.REFINE_WGS84_LAT,
+					area: {
+						dosi: row.SIDO_NM,
+						sgg: row.SIGNGU_NM,
+					},
+				};
+				await this.restaurantsRepository.save({
+					...data,
+				});
+			}
 		}
 	}
 
-	findOne(storeName: string, lotNoAddr: string): Promise<Restaurants> {
+	findOne(restaurants: Pick<Restaurants, 'resName' | 'lotNoAddr'>): Promise<Restaurants> {
 		return this.restaurantsRepository.findOne({
 			where: {
-				storeName,
-				lotNoAddr,
+				resName: restaurants.resName,
+				lotNoAddr: restaurants.lotNoAddr,
 			},
 		});
 	}
 
-	async updateRes(storeName: string, lotNoAddr: string, scoreAvg: number): Promise<Restaurants> {
-		const findRes = await this.findOne(storeName, lotNoAddr);
+	async updateRes(restaurants: Pick<Restaurants, 'resName' | 'lotNoAddr' | 'scoreAvg'>): Promise<Restaurants> {
+		const findRes = await this.findOne({
+			resName: restaurants.resName,
+			lotNoAddr: restaurants.lotNoAddr,
+		});
 		if (!findRes) {
 			throw new BadRequestException('음식점이 존재하지 않습니다.');
 		}
 		const isUpdated = await this.restaurantsRepository.update(
 			{
-				storeName,
-				lotNoAddr,
+				resName: restaurants.resName,
+				lotNoAddr: restaurants.lotNoAddr,
 			},
 			{
-				scoreAvg,
+				scoreAvg: restaurants.scoreAvg,
 			},
 		);
 		if (isUpdated.affected === 1) {
