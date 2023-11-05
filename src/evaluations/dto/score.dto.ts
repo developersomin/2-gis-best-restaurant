@@ -11,7 +11,7 @@ export class ScoreDto {
 
 	@IsString({ message: '가게명을 입력하세요' })
 	@IsNotEmpty()
-	storeName: string;
+	resName: string;
 
 	@IsString()
 	@IsNotEmpty({ message: '가게 지번 주소를 입력하세요' })

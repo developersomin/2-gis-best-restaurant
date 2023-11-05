@@ -16,10 +16,10 @@ export class EvaluationsService {
 	) {}
 
 	// 음식점의 점수를 가져오는 메소드
-	async findResScore(restaurant: Pick<Restaurants, 'storeName' | 'lotNoAddr'>): Promise<Evaluations[]> {
+	async findResScore(restaurant: Pick<Restaurants, 'resName' | 'lotNoAddr'>): Promise<Evaluations[]> {
 		const result = await this.evaluationsRepository.find({
 			where: {
-				restaurant: { storeName: restaurant.storeName, lotNoAddr: restaurant.lotNoAddr },
+				restaurant: { resName: restaurant.resName, lotNoAddr: restaurant.lotNoAddr },
 			},
 			relations: ['restaurant'],
 			select: ['score'],
@@ -39,15 +39,15 @@ export class EvaluationsService {
 
 	//유저가 평점을 남기면 실행되는 메소드
 	async keepScore(scoreDto: ScoreDto, userId): Promise<Evaluations> {
-		const { storeName, lotNoAddr, score, content } = scoreDto;
+		const { resName, lotNoAddr, score, content } = scoreDto;
 		const findUser = await this.usersService.findOne({ id: userId });
 		if (!findUser) {
 			throw new BadRequestException('존재하지 않는 계정입니다.');
 		}
 
-		const scoreArr = await this.findResScore({ storeName, lotNoAddr });
+		const scoreArr = await this.findResScore({ resName, lotNoAddr });
 		const scoreAvg = this.calculateScoreAvg(scoreArr, score);
-		await this.restaurantsService.updateRes(storeName, lotNoAddr, scoreAvg);
+		await this.restaurantsService.updateRes({ resName, lotNoAddr, scoreAvg });
 		const result = await this.evaluationsRepository.save({
 			score,
 			content,
@@ -55,7 +55,7 @@ export class EvaluationsService {
 				id: userId,
 			},
 			restaurant: {
-				storeName,
+				resName,
 				lotNoAddr,
 			},
 		});
