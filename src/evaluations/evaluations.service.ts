@@ -1,7 +1,7 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Evaluations } from './entities/evaluations.entity';
-import { Repository } from 'typeorm';
+import { DataSource, Repository, Transaction } from 'typeorm';
 import { ScoreDto } from './dto/score.dto';
 import { RestaurantsService } from '../restaurants/restaurants.service';
 import { UsersService } from '../users/users.service';
@@ -13,6 +13,7 @@ export class EvaluationsService {
 		@InjectRepository(Evaluations) private readonly evaluationsRepository: Repository<Evaluations>,
 		private readonly restaurantsService: RestaurantsService,
 		private readonly usersService: UsersService,
+		private readonly dataSource: DataSource,
 	) {}
 
 	// 음식점의 점수를 가져오는 메소드
@@ -40,25 +41,39 @@ export class EvaluationsService {
 	//유저가 평점을 남기면 실행되는 메소드
 	async keepScore(scoreDto: ScoreDto, userId): Promise<Evaluations> {
 		const { resName, lotNoAddr, score, content } = scoreDto;
-		const findUser = await this.usersService.findOne({ id: userId });
-		if (!findUser) {
-			throw new BadRequestException('존재하지 않는 계정입니다.');
+		const findRes = await this.restaurantsService.findOne({ resName, lotNoAddr });
+		if (!findRes) {
+			throw new BadRequestException('음식점이 존재하지 않습니다.');
 		}
+		const queryRunner = this.dataSource.createQueryRunner();
+		await queryRunner.connect();
+		await queryRunner.startTransaction();
+		try {
+			const scoreArr = await this.findResScore({ resName, lotNoAddr });
+			const scoreAvg = this.calculateScoreAvg(scoreArr, score);
+			queryRunner.manager.update(Restaurants, { resName, lotNoAddr }, { scoreAvg });
+			//await this.restaurantsService.updateRes({ resName, lotNoAddr, scoreAvg });
+			const evaluations = this.evaluationsRepository.create({
+				score,
+				content,
+				user: {
+					id: userId,
+				},
+				restaurant: {
+					resName,
+					lotNoAddr,
+				},
+			});
+			await queryRunner.manager.save(evaluations);
+			await queryRunner.commitTransaction();
+			await queryRunner.release();
 
-		const scoreArr = await this.findResScore({ resName, lotNoAddr });
-		const scoreAvg = this.calculateScoreAvg(scoreArr, score);
-		await this.restaurantsService.updateRes({ resName, lotNoAddr, scoreAvg });
-		const result = await this.evaluationsRepository.save({
-			score,
-			content,
-			user: {
-				id: userId,
-			},
-			restaurant: {
-				resName,
-				lotNoAddr,
-			},
-		});
-		return result;
+			return evaluations;
+		} catch (e) {
+			await queryRunner.rollbackTransaction();
+
+			await queryRunner.release();
+			throw new BadRequestException(e.message);
+		}
 	}
 }
