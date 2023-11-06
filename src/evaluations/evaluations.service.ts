@@ -1,10 +1,9 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Evaluations } from './entities/evaluations.entity';
-import { DataSource, Repository, Transaction } from 'typeorm';
+import { DataSource, Repository } from 'typeorm';
 import { ScoreDto } from './dto/score.dto';
 import { RestaurantsService } from '../restaurants/restaurants.service';
-import { UsersService } from '../users/users.service';
 import { Restaurants } from '../restaurants/entities/restaurants.entity';
 
 @Injectable()
@@ -12,7 +11,6 @@ export class EvaluationsService {
 	constructor(
 		@InjectRepository(Evaluations) private readonly evaluationsRepository: Repository<Evaluations>,
 		private readonly restaurantsService: RestaurantsService,
-		private readonly usersService: UsersService,
 		private readonly dataSource: DataSource,
 	) {}
 
