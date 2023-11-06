@@ -16,7 +16,7 @@ export class UsersService {
 	) {}
 
 	async findOne(options: FindOptionsWhere<Users>): Promise<Users> {
-		return await this.usersRepository.findOne({ where: options });
+		return await this.usersRepository.findOne({ where: options, relations: ['evaluations'] });
 	}
 	async createUser(createUserDto: CreateUserDto): Promise<Users> {
 		const { nickname, password } = createUserDto;
