@@ -1,10 +1,13 @@
-import { Controller, Post, Headers, Body, UseGuards } from '@nestjs/common';
+import { Controller, Post, Headers, Body, UseGuards, UseInterceptors, UseFilters } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { IGiveToken } from './interface/auth-service.interface';
 import { createTokenAccess, createTokenRefresh } from './interface/auth-controller.interface';
 import { AccessTokenGuard, RefreshTokenGuard } from './guard/jwt-token.guard';
+import { TransformInterceptor } from '../commons/interceptor/transform.interceptor';
+import { HttpExceptionFilter } from '../commons/exception-filter/http.exception-filter';
 
 @Controller('auth')
+@UseInterceptors(TransformInterceptor)
+@UseFilters(HttpExceptionFilter)
 export class AuthController {
 	constructor(private readonly authService: AuthService) {}
 

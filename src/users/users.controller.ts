@@ -6,6 +6,7 @@ import {
 	Param,
 	Patch,
 	Post,
+	UseFilters,
 	UseGuards,
 	UseInterceptors,
 } from '@nestjs/common';
@@ -15,8 +16,12 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import { Users } from './entities/users.entity';
 import { AccessTokenGuard } from '../auth/guard/jwt-token.guard';
 import { IGiveToken } from '../auth/interface/auth-service.interface';
+import { HttpExceptionFilter } from '../commons/exception-filter/http.exception-filter';
+import { TransformInterceptor } from '../commons/interceptor/transform.interceptor';
 
 @Controller('users')
+@UseInterceptors(TransformInterceptor)
+@UseFilters(HttpExceptionFilter)
 export class UsersController {
 	constructor(private readonly usersService: UsersService) {}
 
@@ -25,10 +30,12 @@ export class UsersController {
 	async createUser(@Body() createUserDto: CreateUserDto): Promise<Users> {
 		return await this.usersService.createUser(createUserDto);
 	}
+
 	@Post('login')
 	async login(@Body('nickname') nickname: string, @Body('password') password: string): Promise<IGiveToken> {
 		return await this.usersService.login({ nickname, password });
 	}
+
 	@UseGuards(AccessTokenGuard)
 	@UseInterceptors(ClassSerializerInterceptor)
 	@Patch('/:userId')

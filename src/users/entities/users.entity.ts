@@ -12,10 +12,10 @@ export class Users extends BaseEntity {
 	@Column()
 	password: string;
 
-	@Column({ type: 'decimal', precision: 13, scale: 10 })
+	@Column({ type: 'decimal', precision: 13, scale: 10, nullable: true })
 	lon: number;
 
-	@Column({ type: 'decimal', precision: 12, scale: 10 })
+	@Column({ type: 'decimal', precision: 12, scale: 10, nullable: true })
 	lat: number;
 
 	@Column({ default: false })

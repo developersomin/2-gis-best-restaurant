@@ -29,11 +29,9 @@ export class Restaurants extends OmitType(BaseEntity, ['id'] as const) {
 	@Column({ nullable: true })
 	zipNo: number;
 	@Column({ type: 'decimal', precision: 13, scale: 10, nullable: true })
-	lot: number;
+	lon: number;
 	@Column({ type: 'decimal', precision: 12, scale: 10, nullable: true })
 	lat: number;
-	/*@Column({ nullable: true })
-	sidoName: string;*/
 
 	@Column({ type: 'decimal', precision: 2, scale: 1, default: 0 })
 	scoreAvg: number;

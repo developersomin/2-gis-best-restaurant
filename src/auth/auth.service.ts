@@ -1,12 +1,10 @@
-import { BadRequestException, Injectable, UnauthorizedException } from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { Users } from '../users/entities/users.entity';
 import { IGiveToken, IVerifyToken } from './interface/auth-service.interface';
 import { JwtService } from '@nestjs/jwt';
 @Injectable()
 export class AuthService {
 	constructor(private readonly jwtService: JwtService) {}
-
-	async authenticate() {}
 
 	//-----------------------------------인증---------------------------------------
 	signToken(user: Pick<Users, 'nickname' | 'id'>, isRefreshToken: boolean): string {

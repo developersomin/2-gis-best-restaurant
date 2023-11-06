@@ -16,7 +16,7 @@ export class UsersService {
 	) {}
 
 	async findOne(options: FindOptionsWhere<Users>): Promise<Users> {
-		return await this.usersRepository.findOne({ where: options });
+		return await this.usersRepository.findOne({ where: options, relations: ['evaluations'] });
 	}
 	async createUser(createUserDto: CreateUserDto): Promise<Users> {
 		const { nickname, password } = createUserDto;
@@ -51,7 +51,7 @@ export class UsersService {
 	async login(user: Pick<Users, 'nickname' | 'password'>): Promise<IGiveToken> {
 		const findUser = await this.findOne({ nickname: user.nickname });
 		if (!findUser) {
-			throw new BadRequestException('');
+			throw new BadRequestException('아이디가 존재하지 않습니다.');
 		}
 		const passOk = await bcrypt.compare(user.password, findUser.password);
 		if (!passOk) {
