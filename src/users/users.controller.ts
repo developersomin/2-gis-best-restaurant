@@ -47,6 +47,6 @@ export class UsersController {
 	@UseInterceptors(ClassSerializerInterceptor)
 	@Get('/:userId')
 	async getUser(@Param('userId') id: string): Promise<Users> {
-		return await this.usersService.findOne({ id });
+		return this.usersService.findOne({ id });
 	}
 }

@@ -10,7 +10,7 @@ export class OpenApiService {
 		const pageSize = 1000;
 		let allData = [];
 
-		for (let pIndex = 1; pIndex < 2; pIndex++) {
+		for (let pIndex = 1; pIndex < 3; pIndex++) {
 			const response = await axios.get(apiBaseURL, {
 				params: {
 					KEY: apiKey,

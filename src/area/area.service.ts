@@ -3,7 +3,6 @@ import { Area } from './entities/areas.entity';
 import { MoreThan, Repository } from 'typeorm';
 import { Injectable, OnModuleInit } from '@nestjs/common';
 import { readFile } from '../commons/fs/fs.read';
-import { IFindByDosiAndSgg } from '../restaurants/interface/restaurants-service.interface';
 
 @Injectable()
 export class AreaService implements OnModuleInit {

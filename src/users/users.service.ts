@@ -15,8 +15,12 @@ export class UsersService {
 		private readonly authService: AuthService,
 	) {}
 
-	async findOne(options: FindOptionsWhere<Users>): Promise<Users> {
-		return await this.usersRepository.findOne({ where: options, relations: ['evaluations'] });
+	findOne(options: FindOptionsWhere<Users>): Promise<Users> {
+		return this.usersRepository.findOne({ where: options, relations: ['evaluations'] });
+	}
+
+	findUsers(): Promise<Users[]> {
+		return this.usersRepository.find();
 	}
 
 	async createUser(createUserDto: CreateUserDto): Promise<Users> {
