@@ -8,8 +8,6 @@ import { Area } from '../../area/entities/areas.entity';
 export class Restaurants extends OmitType(BaseEntity, ['id'] as const) {
 	@Column({ nullable: true })
 	resNo: number;
-	/*@Column({ nullable: true })
-	signguName: string;*/
 	@PrimaryColumn()
 	resName: string;
 	@Column({ nullable: true })

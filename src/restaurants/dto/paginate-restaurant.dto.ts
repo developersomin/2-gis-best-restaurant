@@ -1,16 +1,22 @@
-import { IsNumber, IsOptional, IsString } from 'class-validator';
+import { IsIn, IsNotEmpty, IsNumber, IsOptional } from 'class-validator';
 
-export class PaginateRestaurantDto {
+export class GetResDto {
+	@IsNotEmpty()
+	lat: number;
+	@IsNotEmpty()
+	lon: number;
+	@IsNotEmpty()
+	range: number;
+	@IsIn(['ASC', 'DESC'])
 	@IsOptional()
-	@IsString()
-	dosi?: string;
+	order__scoreAvg?: 'ASC' | 'DESC';
+	@IsIn(['ASC', 'DESC'])
 	@IsOptional()
-	@IsString()
-	sgg?: string;
-	@IsNumber()
-	@IsOptional()
-	take: number = 20;
+	order__distance?: 'ASC' | 'DESC';
 	@IsNumber()
 	@IsOptional()
 	cursor?: number;
+	@IsNumber()
+	@IsOptional()
+	take: number = 20;
 }
