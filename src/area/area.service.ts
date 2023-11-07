@@ -1,8 +1,9 @@
 import { InjectRepository } from '@nestjs/typeorm';
 import { Area } from './entities/areas.entity';
-import { Repository } from 'typeorm';
+import { MoreThan, Repository } from 'typeorm';
 import { Injectable, OnModuleInit } from '@nestjs/common';
 import { readFile } from '../commons/fs/fs.read';
+import { IFindByDosiAndSgg } from '../restaurants/interface/restaurants-service.interface';
 
 @Injectable()
 export class AreaService implements OnModuleInit {
@@ -10,6 +11,7 @@ export class AreaService implements OnModuleInit {
 		@InjectRepository(Area)
 		private readonly areaRepository: Repository<Area>,
 	) {}
+
 	async onModuleInit() {
 		const rows: Area[] = readFile();
 		console.log(rows);
@@ -19,5 +21,9 @@ export class AreaService implements OnModuleInit {
 				await this.areaRepository.save(row);
 			}
 		}
+	}
+
+	async getAreas(): Promise<Area[]> {
+		return this.areaRepository.find();
 	}
 }
