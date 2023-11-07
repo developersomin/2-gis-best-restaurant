@@ -8,6 +8,7 @@ import { RestaurantsModule } from './restaurants/restaurants.module';
 import { EvaluationsModule } from './evaluations/evaluations.module';
 import { AreaModule } from './area/area.module';
 import { AuthModule } from './auth/auth.module';
+import { RecommendModule } from './recommend/recommend.module';
 
 @Module({
 	imports: [
@@ -28,6 +29,7 @@ import { AuthModule } from './auth/auth.module';
 		EvaluationsModule,
 		AreaModule,
 		AuthModule,
+		RecommendModule,
 	],
 	controllers: [AppController],
 	providers: [AppService],
