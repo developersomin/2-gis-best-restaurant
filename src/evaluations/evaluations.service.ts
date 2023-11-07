@@ -50,7 +50,6 @@ export class EvaluationsService {
 			const scoreArr = await this.findResScore({ resName, lotNoAddr });
 			const scoreAvg = this.calculateScoreAvg(scoreArr, score);
 			queryRunner.manager.update(Restaurants, { resName, lotNoAddr }, { scoreAvg });
-			//await this.restaurantsService.updateRes({ resName, lotNoAddr, scoreAvg });
 			const evaluations = this.evaluationsRepository.create({
 				score,
 				content,

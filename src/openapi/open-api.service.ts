@@ -14,7 +14,7 @@ export class OpenApiService {
 			const response = await axios.get(apiBaseURL, {
 				params: {
 					KEY: apiKey,
-					TYPE: 'json', // JSON 형식으로 요청
+					TYPE: 'json',
 					pIndex,
 					pSize: pageSize,
 				},
