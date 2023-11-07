@@ -1,11 +1,13 @@
 import { BadRequestException, Injectable, OnModuleInit } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Restaurants } from './entities/restaurants.entity';
-import { Repository } from 'typeorm';
+import { Repository, SelectQueryBuilder } from 'typeorm';
 import { OpenApiService } from '../openapi/open-api.service';
-import { IGetRestaurants, squareBox } from './interface/restaurants-service.interface';
+import { IGetRestaurants, ISquareBox } from './interface/restaurants-service.interface';
 import * as geolib from 'geolib';
 import { GetResDto } from './dto/paginate-restaurant.dto';
+import { Users } from '../users/entities/users.entity';
+import { Cron } from '@nestjs/schedule';
 
 @Injectable()
 export class RestaurantsService implements OnModuleInit {
@@ -16,6 +18,7 @@ export class RestaurantsService implements OnModuleInit {
 	) {}
 
 	//라이프싸이클에 의해 앱이 시작할때 오픈 API 와 연동하여 데이터베이스에 저장하는 로직
+	@Cron('0 0 0 * * 1') //매주월요일 00:00 자동실행
 	async onModuleInit() {
 		const rows = await this.openApiService.getAllData();
 		for (const row of rows) {
@@ -54,12 +57,9 @@ export class RestaurantsService implements OnModuleInit {
 		});
 	}
 
-	//나의 위치에 반경 1km 사각박스 생성 후 위도와 경도의 최대 최소 값 구하는 로직
-	getSquareBox(getResDto: Pick<GetResDto, 'lon' | 'lat' | 'range'>): squareBox {
-		const boundingBox = geolib.getBoundsOfDistance(
-			{ latitude: getResDto.lat, longitude: getResDto.lon },
-			getResDto.range * 1000,
-		);
+	//나의 위치에 반경 range 사각박스 생성 후 위도와 경도의 최대 최소 값 구하는 로직
+	getSquareBox(lon, lat, range): ISquareBox {
+		const boundingBox = geolib.getBoundsOfDistance({ latitude: lat, longitude: lon }, range * 1000);
 
 		const minLat = boundingBox[0].latitude;
 		const minLon = boundingBox[0].longitude;
@@ -69,19 +69,21 @@ export class RestaurantsService implements OnModuleInit {
 		return { minLat, minLon, maxLat, maxLon };
 	}
 
-	async getRes(getResDto): Promise<IGetRestaurants> {
-		const { lon, lat, range, order__distance, order__scoreAvg } = getResDto;
-
-		const squareBox = this.getSquareBox(getResDto);
-		const { minLat, minLon, maxLat, maxLon } = squareBox;
-		const cursor = getResDto.cursor ?? 0;
-
-		const qb = this.restaurantsRepository.createQueryBuilder('restaurants');
+	withinRangeQuery(qb: SelectQueryBuilder<Restaurants>, squareBox: ISquareBox) {
+		const { minLat, maxLat, minLon, maxLon } = squareBox;
 		qb.where('restaurants.lat > :minLat', { minLat })
 			.andWhere('restaurants.lat < :maxLat', { maxLat })
 			.andWhere('restaurants.lon > :minLon', { minLon })
-			.andWhere('restaurants.lon < :maxLon', { maxLon })
-			.andWhere('restaurants.resNo > :cursor', { cursor });
+			.andWhere('restaurants.lon < :maxLon', { maxLon });
+	}
+
+	async getRes(getResDto: GetResDto): Promise<IGetRestaurants> {
+		const { lon, lat, range, order__distance, order__scoreAvg } = getResDto;
+		const squareBox = this.getSquareBox(getResDto.lon, getResDto.lat, getResDto.range);
+		const cursor = getResDto.cursor ?? 0;
+		const qb = this.restaurantsRepository.createQueryBuilder('restaurants');
+		this.withinRangeQuery(qb, squareBox);
+		qb.andWhere('restaurants.resNo > :cursor', { cursor });
 		qb.addSelect(
 			`6371 * acos(cos(radians(${lat})) * cos(radians(lat)) * cos(radians(lon) 
 			- radians(${lon})) + sin(radians(${lat})) * sin(radians(lat)))`,
@@ -129,6 +131,44 @@ export class RestaurantsService implements OnModuleInit {
 			count: restaurants.length,
 			next: decodeURIComponent(nextUrl?.toString() ?? null),
 		};
+	}
+	randomNumber(length) {
+		let end = 0;
+		if (length < 5) {
+			end = length;
+		} else {
+			end = 5;
+		}
+		const indexArray = [];
+		for (let i = 0; i < end; i++) {
+			const number = Math.floor(Math.random() * length);
+			if (indexArray.find((e) => e === number)) {
+				i--;
+			} else {
+				indexArray.push(number);
+			}
+		}
+		return indexArray;
+	}
+
+	async recommendRandomRes(user: Users) {
+		const { lat, lon } = user;
+		const qb = this.restaurantsRepository.createQueryBuilder('restaurants');
+		const squareBox = this.getSquareBox(lon, lat, 0.5);
+		this.withinRangeQuery(qb, squareBox);
+		const restaurants = await qb.getMany();
+		const indexArr = this.randomNumber(restaurants.length);
+		const randomRestaurants = [];
+		for (const index of indexArr) {
+			const restaurant = {
+				resName: restaurants[index].resName,
+				lotNoAddr: restaurants[index].lotNoAddr,
+				foodTypeName: restaurants[index].foodTypeName,
+				scoreAvg: restaurants[index].scoreAvg,
+			};
+			randomRestaurants.push(restaurant);
+		}
+		return randomRestaurants;
 	}
 
 	async updateRes(restaurants: Pick<Restaurants, 'resName' | 'lotNoAddr' | 'scoreAvg'>): Promise<Restaurants> {

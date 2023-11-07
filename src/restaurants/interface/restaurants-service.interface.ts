@@ -7,7 +7,7 @@ export interface IGetRestaurants {
 	next: string | null;
 }
 
-export interface squareBox {
+export interface ISquareBox {
 	minLat: number;
 	minLon: number;
 	maxLat: number;
