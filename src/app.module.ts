@@ -9,6 +9,7 @@ import { EvaluationsModule } from './evaluations/evaluations.module';
 import { AreaModule } from './area/area.module';
 import { AuthModule } from './auth/auth.module';
 import { RecommendModule } from './recommend/recommend.module';
+import { ScheduleModule } from '@nestjs/schedule';
 
 @Module({
 	imports: [
@@ -24,6 +25,7 @@ import { RecommendModule } from './recommend/recommend.module';
 			synchronize: true,
 			logging: true,
 		}),
+		ScheduleModule.forRoot(),
 		UsersModule,
 		RestaurantsModule,
 		EvaluationsModule,

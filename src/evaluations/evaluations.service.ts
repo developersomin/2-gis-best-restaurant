@@ -1,7 +1,7 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable, InternalServerErrorException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Evaluations } from './entities/evaluations.entity';
-import { DataSource, Repository } from 'typeorm';
+import { DataSource, QueryRunner, Repository } from 'typeorm';
 import { ScoreDto } from './dto/score.dto';
 import { RestaurantsService } from '../restaurants/restaurants.service';
 import { Restaurants } from '../restaurants/entities/restaurants.entity';
@@ -37,7 +37,7 @@ export class EvaluationsService {
 	}
 
 	//유저가 평점을 남기면 실행되는 메소드
-	async keepScore(scoreDto: ScoreDto, userId): Promise<Evaluations> {
+	async keepScore(scoreDto: ScoreDto, userId: string): Promise<Evaluations> {
 		const { resName, lotNoAddr, score, content } = scoreDto;
 		const findRes = await this.restaurantsService.findOne({ resName, lotNoAddr });
 		if (!findRes) {
@@ -49,7 +49,7 @@ export class EvaluationsService {
 		try {
 			const scoreArr = await this.findResScore({ resName, lotNoAddr });
 			const scoreAvg = this.calculateScoreAvg(scoreArr, score);
-			queryRunner.manager.update(Restaurants, { resName, lotNoAddr }, { scoreAvg });
+			await queryRunner.manager.update(Restaurants, { resName, lotNoAddr }, { scoreAvg });
 			const evaluations = this.evaluationsRepository.create({
 				score,
 				content,
@@ -64,13 +64,11 @@ export class EvaluationsService {
 			await queryRunner.manager.save(evaluations);
 			await queryRunner.commitTransaction();
 			await queryRunner.release();
-
 			return evaluations;
 		} catch (e) {
 			await queryRunner.rollbackTransaction();
-
 			await queryRunner.release();
-			throw new BadRequestException(e.message);
+			throw new InternalServerErrorException('평점 저장 중 오류 발생');
 		}
 	}
 }
