@@ -10,6 +10,8 @@ import { AreaModule } from './area/area.module';
 import { AuthModule } from './auth/auth.module';
 import { RecommendModule } from './recommend/recommend.module';
 import { ScheduleModule } from '@nestjs/schedule';
+import * as redisStore from 'cache-manager-redis-store';
+import { CacheModule } from '@nestjs/cache-manager';
 
 @Module({
 	imports: [
@@ -24,6 +26,12 @@ import { ScheduleModule } from '@nestjs/schedule';
 			entities: [__dirname + '/**/*.entity.*'],
 			synchronize: true,
 			logging: true,
+		}),
+		CacheModule.register({
+			store: redisStore,
+			host: 'my-redis',
+			port: Number(process.env.REDIS_PORT),
+			isGlobal: true,
 		}),
 		ScheduleModule.forRoot(),
 		UsersModule,
