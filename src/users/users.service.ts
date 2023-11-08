@@ -39,7 +39,7 @@ export class UsersService {
 		return newUser;
 	}
 
-	async updateUser(userId: string, updateUserDto: UpdateUserDto): Promise<Users> {
+	async updateUser(userId: string, updateUserDto: UpdateUserDto): Promise<string> {
 		const { isRecommend, lon, lat } = updateUserDto;
 		const findUser = await this.findOne({ id: userId });
 		if (!findUser) {
@@ -47,7 +47,7 @@ export class UsersService {
 		}
 		const updateResult = await this.usersRepository.update({ id: findUser.id }, { isRecommend: true, lon, lat });
 		if (updateResult.affected === 1) {
-			return findUser;
+			return '업데이트 성공 ';
 		} else {
 			throw new BadRequestException('업데이트에 실패 했습니다.');
 		}

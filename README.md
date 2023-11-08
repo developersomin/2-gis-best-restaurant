@@ -13,7 +13,7 @@
 
 ## 개요
 
-소셜 미디어 통합 Feed 서비스란?
+위치 기반 맛집 추천 및 맛집 조회 서비스 란?
 
 -   본 서비스는 공공 데이터를 활용하여, 지역 음식점 목록을 자동으로 업데이트 하고 이를 활용한다.
 -   사용자 위치에맞게 맛집 및 메뉴를 추천하여 더 나은 다양한 음식 경험을 제공하고, 음식을 좋아하는 사람들 간의 소통과 공유를 촉진하려 합니다.
@@ -34,14 +34,42 @@ docker-compse build
 # docker 실행
 docker-compose up 
 ```
+<details>
+<summary> 환경 변수 보기 </summary>
+
+```
+# 데이터베이스 연결
+DATABASE_HOST=
+DATABASE_PORT=
+DATABASE_USERNAME=
+DATABASE_PASSWORD=
+DATABASE_DATABASE=
+
+# Redis
+REDIS_PORT=
+
+# 오픈API 인증키
+OPEN_API_KEY=
+OPEN_API_TYPE=
+
+#비밀번호 암호화
+HASH_SALT=
+
+#JWT
+JWT_SECRET=
+
+#discord webhook
+DISCORD_WEB_HOOK=
+```
+</details>
 
 ## 프로젝트 분석
 
 TODO: 작성 필요
 
 ## DB 모델링
+![image](https://github.com/developersomin/2-gis-best-restaurant/assets/127207131/847e1c76-007c-49fd-9dbf-c2d50a241cb5)
 
-TODO: 작성 필요
 
 ## API 명세서
 
