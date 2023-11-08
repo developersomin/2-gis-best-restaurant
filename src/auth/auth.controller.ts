@@ -7,11 +7,11 @@ import { HttpExceptionFilter } from '../commons/exception-filter/http.exception-
 
 @Controller('auth')
 @UseInterceptors(TransformInterceptor)
+@UseGuards(AccessTokenGuard)
 @UseFilters(HttpExceptionFilter)
 export class AuthController {
 	constructor(private readonly authService: AuthService) {}
 
-	@UseGuards(AccessTokenGuard)
 	@Post('token/access')
 	async createTokenAccess(@Headers('authorization') rawToken: string): Promise<createTokenAccess> {
 		const token = this.authService.extractTokenFromHeader(rawToken);
@@ -21,7 +21,6 @@ export class AuthController {
 		};
 	}
 
-	@UseGuards(RefreshTokenGuard)
 	@Post('token/refresh')
 	async createTokenRefresh(@Headers('authorization') rawToken: string): Promise<createTokenRefresh> {
 		const token = this.authService.extractTokenFromHeader(rawToken);

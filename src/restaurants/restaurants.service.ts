@@ -1,7 +1,7 @@
-import { BadRequestException, Injectable, OnModuleInit } from '@nestjs/common';
+import { BadRequestException, Injectable, InternalServerErrorException, OnModuleInit } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Restaurants } from './entities/restaurants.entity';
-import { Repository, SelectQueryBuilder } from 'typeorm';
+import { DataSource, Repository, SelectQueryBuilder } from 'typeorm';
 import { OpenApiService } from '../openapi/open-api.service';
 import { IGetRestaurants, ISquareBox } from './interface/restaurants-service.interface';
 import * as geolib from 'geolib';
@@ -15,36 +15,48 @@ export class RestaurantsService implements OnModuleInit {
 		@InjectRepository(Restaurants)
 		private readonly restaurantsRepository: Repository<Restaurants>,
 		private readonly openApiService: OpenApiService,
+		private readonly dataSource: DataSource,
 	) {}
 
 	//라이프싸이클에 의해 앱이 시작할때 오픈 API 와 연동하여 데이터베이스에 저장하는 로직
 	@Cron('0 0 0 * * 1') //매주월요일 00:00 자동실행
 	async onModuleInit() {
 		const rows = await this.openApiService.getAllData();
-		for (const row of rows) {
-			if (row.REFINE_WGS84_LOGT !== null || row.REFINE_WGS84_LAT !== null) {
-				const data = {
-					resNo: row.SAFETY_RESTRNT_NO,
-					resName: row.BIZPLC_NM,
-					detailAddr: row.DETAIL_ADDR,
-					storeTypeName: row.INDUTYPE_NM,
-					foodTypeName: row.INDUTYPE_DETAIL_NM,
-					telNo: row.TELNO,
-					slctnYnDiv: row.SLCTN_YN_DIV,
-					roadAddr: row.REFINE_ROADNM_ADDR,
-					lotNoAddr: row.REFINE_LOTNO_ADDR,
-					zipNo: row.REFINE_ZIPNO,
-					lon: row.REFINE_WGS84_LOGT,
-					lat: row.REFINE_WGS84_LAT,
-					area: {
-						dosi: row.SIDO_NM,
-						sgg: row.SIGNGU_NM,
-					},
-				};
-				await this.restaurantsRepository.save({
-					...data,
-				});
+		const queryRunner = this.dataSource.createQueryRunner();
+		await queryRunner.connect();
+		await queryRunner.startTransaction();
+		try {
+			for (const row of rows) {
+				if (row.REFINE_WGS84_LOGT !== null || row.REFINE_WGS84_LAT !== null) {
+					const data = {
+						resNo: row.SAFETY_RESTRNT_NO,
+						resName: row.BIZPLC_NM,
+						detailAddr: row.DETAIL_ADDR,
+						storeTypeName: row.INDUTYPE_NM,
+						foodTypeName: row.INDUTYPE_DETAIL_NM,
+						telNo: row.TELNO,
+						slctnYnDiv: row.SLCTN_YN_DIV,
+						roadAddr: row.REFINE_ROADNM_ADDR,
+						lotNoAddr: row.REFINE_LOTNO_ADDR,
+						zipNo: row.REFINE_ZIPNO,
+						lon: row.REFINE_WGS84_LOGT,
+						lat: row.REFINE_WGS84_LAT,
+						area: {
+							dosi: row.SIDO_NM,
+							sgg: row.SIGNGU_NM,
+						},
+					};
+					await queryRunner.manager.save(Restaurants, {
+						...data,
+					});
+				}
 			}
+			await queryRunner.commitTransaction();
+			await queryRunner.release();
+		} catch (e) {
+			await queryRunner.rollbackTransaction();
+			await queryRunner.release();
+			throw new InternalServerErrorException('음식점 데이터베이스에 저장 중 오류 발생');
 		}
 	}
 
