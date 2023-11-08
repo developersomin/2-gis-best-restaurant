@@ -7,8 +7,11 @@
 -   [개요](#개요)
 -   [기술 스택](#기술-스택)
 -   [실행 스크립트](#실행-스크립트)
+-   [프로젝트 분석](#프로젝트-분석)
 -   [DB 모델링](#DB-모델링)
--   [API 명세](#api-명세)
+-   [API 명세서](#api-명세서)
+-   [프로젝트 진행 및 이슈](#프로젝트-진행-및-이슈-)
+-   [테스트 구현 (예정)](#테스트-구현-예정)
 -   [TIL](#til)
 
 ## 개요
@@ -72,15 +75,19 @@ TODO: 작성 필요
 
 
 ## API 명세서
+[API 설계 🔗 ](https://www.notion.so/2-gis-best-restaurant-3a47b2706aad415d9e560e8a5ede061f?p=8ed3697f50e14fd1a777cfa7ce20cf37&pm=s) 
 
-TODO: 작성 필요
-
+## 프로젝트 진행 및 이슈 
+![image](https://github.com/developersomin/2-gis-best-restaurant/assets/127207131/8b83cd26-f54d-436b-8ccb-b5a431e82515)
+![image](https://github.com/developersomin/2-gis-best-restaurant/assets/127207131/b74c02e0-a50c-4c22-9d3f-bd0bce299be7)
 ## 테스트 구현 (예정)
 
 TODO: 작성 필요
 
-## Troubleshooting
-
 
 ## TIL
--   [팀 노션 페이지 TIL](https://www.notion.so/ce558ed53c1e46d38f34d66cb0a55087?v=8d07b98179a448ceb5e2e32284ceb906&pvs=4)
+![image](https://github.com/developersomin/2-gis-best-restaurant/assets/127207131/c0c57b16-5359-4d18-8d46-f77b18c813bf)
+-   [커서 페이지네이션 - TIL 🔗](https://www.notion.so/cc7ae2f7ac1d484c81ff06cba95cc876)
+-   [스케줄 - TIL 🔗](https://www.notion.so/0adb299a733b4f4186ea1c290110b30d)
+-   [Redis - TIL 🔗](https://www.notion.so/Redis-8c1e9292148b469a9118f32b62ea5060)
+-   [JWT - TIL 🔗](https://www.notion.so/JWT-72b1adbf025d42b88d5784ba838ebaad)
