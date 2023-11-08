@@ -68,7 +68,7 @@ DISCORD_WEB_HOOK=
 
 ## 프로젝트 분석
 
-TODO: 작성 필요/
+TODO: 작성 필요
 
 ## DB 모델링
 ![image](https://github.com/developersomin/2-gis-best-restaurant/assets/127207131/847e1c76-007c-49fd-9dbf-c2d50a241cb5)
