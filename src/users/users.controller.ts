@@ -18,6 +18,7 @@ import { AccessTokenGuard } from '../auth/guard/jwt-token.guard';
 import { IGiveToken } from '../auth/interface/auth-service.interface';
 import { HttpExceptionFilter } from '../commons/exception-filter/http.exception-filter';
 import { TransformInterceptor } from '../commons/interceptor/transform.interceptor';
+import { User } from './decorator/users.decorator';
 
 @Controller('users')
 @UseInterceptors(TransformInterceptor)
@@ -39,14 +40,14 @@ export class UsersController {
 	@UseGuards(AccessTokenGuard)
 	@UseInterceptors(ClassSerializerInterceptor)
 	@Patch('/:userId')
-	async userUpdate(@Param('userId') userId: string, @Body() updateUserDto: UpdateUserDto): Promise<Users> {
+	async userUpdate(@User('id') userId: string, @Body() updateUserDto: UpdateUserDto): Promise<string> {
 		return await this.usersService.updateUser(userId, updateUserDto);
 	}
 
 	@UseGuards(AccessTokenGuard)
 	@UseInterceptors(ClassSerializerInterceptor)
 	@Get('/:userId')
-	async getUser(@Param('userId') id: string): Promise<Users> {
-		return this.usersService.findOne({ id });
+	async getUser(@User('id') userId: string): Promise<Users> {
+		return this.usersService.findOne({ id: userId });
 	}
 }
