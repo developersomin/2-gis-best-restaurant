@@ -1,5 +1,5 @@
 # 지리기반 맛집 추천 웹 서비스 
-
+![image](https://github.com/developersomin/2-gis-best-restaurant/assets/127207131/013c1556-c7e4-4824-91a5-d1cab93fad2d)
  
 
 ## 목차
