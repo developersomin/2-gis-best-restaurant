@@ -11,8 +11,9 @@
 -   [DB 모델링](#DB-모델링)
 -   [API 명세서](#api-명세서)
 -   [프로젝트 진행 및 이슈](#프로젝트-진행-및-이슈-)
--   [테스트 구현 (예정)](#테스트-구현-예정)
 -   [TIL](#til)
+
+<br>
 
 ## 개요
 
@@ -22,11 +23,15 @@
 -   사용자 위치에맞게 맛집 및 메뉴를 추천하여 더 나은 다양한 음식 경험을 제공하고, 음식을 좋아하는 사람들 간의 소통과 공유를 촉진하려 합니다.
 
 
+<br>
+
 ## 기술 스택
 
 언어 및 프레임워크: ![TypeScript](https://img.shields.io/badge/typescript-%23007ACC.svg?style=for-the-badge&logo=typescript&logoColor=white) ![NestJS](https://img.shields.io/badge/nestjs-%23E0234E.svg?style=for-the-badge&logo=nestjs&logoColor=white)</br>
 데이터베이스: ![MySQL](https://img.shields.io/badge/mysql-%2300f.svg?style=for-the-badge&logo=mysql&logoColor=white)</br>
 개발환경: ![Docker](https://img.shields.io/badge/docker-%230db7ed.svg?style=for-the-badge&logo=docker&logoColor=white)</br>
+
+<br>
 
 ## 실행 스크립트
 
@@ -66,9 +71,61 @@ DISCORD_WEB_HOOK=
 ```
 </details>
 
+<br>
+
 ## 프로젝트 분석
 
-TODO: 작성 필요
+### 사용자
+- 회원가입
+  - 계정은 유저의 nickname 과 password 를 이용해 회원가입 실행 
+  - password 는 숫자, 문자, 특수문자 중 2가지 이상을 포함
+  - password 길이는 최소 10글자 이상 
+  - 비밀번호 암호화 및 노출 금지 
+
+- 로그인
+  - 로그인 시 AccessToken , RefreshToken 발급 
+  - 이후 Header에 AccessToken를 포함하여 JWT 유효성을 검증 
+  - AccessToken 만료시 RefreshToken을 Header에 입력하여 AccessToken을 재발급 받는다.
+  - Refresh 토큰 만료시 로그인을 다시한다. 
+
+### 공공데이터 수집/전처리/자동화
+- 수집
+  - 경기도의 음식점 데이터를 수집하기 위해 axios를 활용하여 공공 데이터의 OPEN API를 호출
+  - 한번의 호출로 얻을 수 있는 양이 1000개 이기 때문에 1000개씩 데이터를 불러와 전처리를 진행 후 저장
+- 전처리
+  - 종복 데이터를 방지하기 위해 상호명+주소를 결합하여 고유한 컬럼을 생성
+  - 필수 정보가 null 인 경우 필터링하고 중요하지 않은 정보는 기본값 null로 설정
+- 자동화
+  - 스케줄러를 통한 음식점 업데이트 자동화 
+  - 매주 월요일 00:00 에 자동 업데이트 실시 
+  - 기존 음식점의 정보가 바뀌면 업데이트, 새로운 음식점이면 새로운 레코드 추가
+
+### 시군구 조회 
+- 시군구 조회 
+  - 앱 실행시 csv 파일을 읽어 데이터베이스에 저장
+  - 이후 시군구 조회 시 Redis 캐시 메모리에 없으면 실제 데이터베이스에서 조회 후 캐쉬에 저장
+  - 다음 호출 시 Redis 캐시 메모리에서 데이터를 불러옴
+
+### 맛집 조회
+- 범위 내 맛집 조회
+  - 하버사인 공식을 이용하여 거리를 계산 
+  - 내 위치에서 반경에 맞는 사각형을 기준으로 최소 최대 위도 경도 값을 구하여 필터링
+  - 커서 페이지네이션 적용
+  
+### 리뷰 점수 생성 
+  - 사용자가 평가를 하면 점수가 평가 엔티티에 저장되고 평균을 계산하여 레스토랑에 저장한다.
+  - 2번 이상 데이터베이스에 저장을 하기 때문에 트랜잭션을 사용하여 데이터 안정성과 무결성을 보장한다. 
+
+### Discord WebHook을 활용한 점심 추천 서비스 
+
+![스크린샷 2023-11-08 22-35-11](https://github.com/developersomin/2-gis-best-restaurant/assets/127207131/f101cf89-ef0c-468a-8525-26bf36846cda)
+
+
+  - 유주 중 전심 추천 서비스 사용여부를 체크한 유저에 한해 주변 맛집 리스트를 제공한다. 
+  - 500 미터 이내의 맛집을 랜덤으로 5개씩 제공한다.
+  - 스케줄러를 통해 자동화 하여 11:30 때 추천
+
+<br>
 
 ## DB 모델링
 ![image](https://github.com/developersomin/2-gis-best-restaurant/assets/127207131/847e1c76-007c-49fd-9dbf-c2d50a241cb5)
@@ -383,7 +440,7 @@ TODO: 작성 필요
 
 - **POST /auth/token/access (access토큰 재발급)**
 
-  헤더에 authorization : Bearer {accessToken} 입력
+  헤더에 authorization : Bearer {refreshToken} 입력
 
     - **201** Response
 
@@ -522,7 +579,11 @@ TODO: 작성 필요
             },
             ...more
         ```
+      
+      </details>
+<details>
 
+<summary> 맛집 평가 API </summary>
 
 ### 맛집 평가 API
 
@@ -777,20 +838,18 @@ TODO: 작성 필요
 
 </details>
 
+<br>
 
-[API 설계 🔗 ](https://www.notion.so/2-gis-best-restaurant-3a47b2706aad415d9e560e8a5ede061f?p=8ed3697f50e14fd1a777cfa7ce20cf37&pm=s) 
-
-## 프로젝트 진행 및 이슈 
+## 프로젝트 진행 
 ![image](https://github.com/developersomin/2-gis-best-restaurant/assets/127207131/8b83cd26-f54d-436b-8ccb-b5a431e82515)
 ![image](https://github.com/developersomin/2-gis-best-restaurant/assets/127207131/b74c02e0-a50c-4c22-9d3f-bd0bce299be7)
-## 테스트 구현 (예정)
 
-TODO: 작성 필요
+<br>
 
 
 ## TIL
 ![image](https://github.com/developersomin/2-gis-best-restaurant/assets/127207131/c0c57b16-5359-4d18-8d46-f77b18c813bf)
--   [커서 페이지네이션 - TIL 🔗](https://www.notion.so/cc7ae2f7ac1d484c81ff06cba95cc876)
--   [스케줄 - TIL 🔗](https://www.notion.so/0adb299a733b4f4186ea1c290110b30d)
--   [Redis - TIL 🔗](https://www.notion.so/Redis-8c1e9292148b469a9118f32b62ea5060)
--   [JWT - TIL 🔗](https://www.notion.so/JWT-72b1adbf025d42b88d5784ba838ebaad)
+-   [커서 페이지네이션 - TIL 🔗](https://quixotic-trust-a91.notion.site/cc7ae2f7ac1d484c81ff06cba95cc876?pvs=4)
+-   [스케줄 - TIL 🔗](https://quixotic-trust-a91.notion.site/0adb299a733b4f4186ea1c290110b30d?pvs=4)
+-   [Redis - TIL 🔗](https://quixotic-trust-a91.notion.site/Redis-8c1e9292148b469a9118f32b62ea5060?pvs=4)
+-   [JWT - TIL 🔗](https://quixotic-trust-a91.notion.site/JWT-72b1adbf025d42b88d5784ba838ebaad?pvs=4)
